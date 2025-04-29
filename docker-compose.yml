@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend
+    container_name: magnificentfox_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend
+    container_name: magnificentfox_backend
+    restart: always
+    env_file:
+      - .env  
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "
+      python manage.py collectstatic --noinput &&
+      python manage.py migrate &&
+      gunicorn MagnificentFox.wsgi:application --bind 0.0.0.0:8000
+      "
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: nginx
+    container_name: magnificentfox_nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+      - /etc/letsencrypt:/etc/letsencrypt:ro       # ✅ Use real system path
+      - ./certbot/www:/var/www/certbot
+      - ./nginx:/etc/nginx/conf.d                  # ✅ Ensure your conf files are here
+    depends_on:
+      - backend
+      - frontend
+
+  certbot_init:
+    image: certbot/certbot
+    container_name: magnificentfox_certbot_init
+    depends_on:
+      - nginx
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt           # ✅ Real path
+      - ./certbot/www:/var/www/certbot
+    entrypoint: >
+      certbot certonly --webroot
+      --webroot-path=/var/www/certbot
+      --email your@email.com
+      --agree-tos
+      --no-eff-email
+      -d magnificentfox.shop
+      -d www.magnificentfox.shop
+      -d api.magnificentfox.shop
+      -d admin.magnificentfox.shop
+
+  certbot:
+    image: certbot/certbot
+    container_name: magnificentfox_certbot
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt           # ✅ Real path
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"
+    depends_on:
+      - nginx
+
+volumes:
+  static_volume:
+  media_volume:
