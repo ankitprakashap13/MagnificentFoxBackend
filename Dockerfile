@@ -1,4 +1,3 @@
-# Stage 1: Build Django Backend
 FROM python:3.13.2-slim AS backend
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -30,10 +29,6 @@ COPY api/ ./api/
 COPY manage.py ./
 COPY .env ./
 
-# Entrypoint script
-COPY entrypoint.sh .
-RUN chmod +x entrypoint.sh
-
 EXPOSE 8000
 
-CMD ["./entrypoint.sh"]
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && python manage.py migrate && gunicorn MagnificentFox.wsgi:application --bind 0.0.0.0:8000"]
