@@ -28,7 +28,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: nginx
     container_name: magnificentfox_nginx
     restart: always
     ports:
