@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -25,9 +23,7 @@ services:
       "
 
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nginx:alpine
     container_name: magnificentfox_nginx
     restart: always
     ports:
