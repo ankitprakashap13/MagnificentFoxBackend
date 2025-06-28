@@ -4,11 +4,11 @@ sudo docker-compose up -d
 
 sudo docker-compose logs web
 
-sudo docker-composeexecwebsh
+sudo docker-compose exec web sh
 
-python3 manage.pymigrate
+python3 manage.py migrate
 
-python3 manage.pycollectstatic--noinput
+python3 manage.py collectstatic --noinput
 
 docker-compose down -v --remove-orphans
 docker system prune -a

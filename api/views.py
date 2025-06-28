@@ -26,7 +26,8 @@ class OrderListCreate(generics.ListCreateAPIView):
 def column_structure_data(request):
     """Returns API status message"""
     data = {"message": "API is working!"}
-    return Response(ColumnStructureSerializer(data).data)
+    serializer = ColumnStructureSerializer(data)
+    return Response(serializer.data)
 
 # API Endpoint to List Products
 @api_view(['GET'])

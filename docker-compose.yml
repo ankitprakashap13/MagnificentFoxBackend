@@ -1,20 +1,6 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: frontend
-    container_name: magnificentfox_frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    environment:
-      - NODE_ENV=production
-    restart: always
-
   backend:
     build:
       context: .
@@ -29,6 +15,8 @@ services:
       - media_volume:/app/media
     ports:
       - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=MagnificentFox.settings
     command: >
       sh -c "
       python manage.py collectstatic --noinput &&
@@ -54,7 +42,6 @@ services:
       - ./nginx:/etc/nginx/conf.d                  # ✅ Ensure your conf files are here
     depends_on:
       - backend
-      - frontend
 
   certbot_init:
     image: certbot/certbot
