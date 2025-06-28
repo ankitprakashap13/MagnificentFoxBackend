@@ -94,7 +94,7 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = '/app/static/'
 
 AWS_S3_ENDPOINT_URL = env('DO_SPACES_ENDPOINT', default='https://magnificentfox.blr1.digitaloceanspaces.com')
 AWS_ACCESS_KEY_ID = env('DO_SPACES_KEY')
