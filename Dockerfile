@@ -16,8 +16,9 @@ RUN apt-get update && apt-get install -y \
     zlib1g-dev \
     libfreetype6-dev \
     libtiff5-dev \
-    libwebp-dev && \
-    rm -rf /var/lib/apt/lists/*
+    libwebp-dev \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
