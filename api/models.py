@@ -31,6 +31,9 @@ class User(AbstractUser):
     )
 
     REQUIRED_FIELDS = ['name', 'mobile', 'password']
+    
+    def __str__(self):
+        return self.name
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
@@ -55,6 +58,9 @@ class Product(models.Model):
     offers = models.ManyToManyField('Offer', related_name='products', blank=True)
     images = models.ManyToManyField('ProductImage', related_name='products', blank=True)
     videos = models.ManyToManyField('ProductVideo', related_name='products', blank=True)
+    
+    def __str__(self):
+        return self.name
 
 
 class OTP(models.Model):
@@ -65,6 +71,9 @@ class OTP(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.name
 
 
 class Offer(models.Model):
@@ -72,14 +81,25 @@ class Offer(models.Model):
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
+    
+    def __str__(self):
+        return self.name
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
     image = models.ImageField(upload_to='product_images/', default='product_images/default.jpg', max_length=2048)
+    alt_text = models.CharField(max_length=255, blank=True, help_text='Alternative text for accessibility')
+    
+    def __str__(self):
+        return f'{self.product.name} - Image {self.id}' if self.alt_text == '' else self.alt_text
 
 class ProductVideo(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_videos')
     video = models.FileField(upload_to='product_videos/', null=True, blank=True)
+    title = models.CharField(max_length=255, blank=True, help_text='Video title or description')
+    
+    def __str__(self):
+        return f'{self.product.name} - Video {self.id}' if self.title == '' else self.title
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
@@ -87,6 +107,9 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=50, default='Pending')
+    
+    def __str__(self):
+        return f'Order #{self.id} - {self.user.name}'
 
 
 class OrderItem(models.Model):

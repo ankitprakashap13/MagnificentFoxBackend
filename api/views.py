@@ -58,13 +58,14 @@ def favourites_data(request):
 def reviews_data(request):
     """Returns reviews data from database"""
     products = Product.objects.exclude(customer_reviews__isnull=True).exclude(customer_reviews='')
-    data = [{'text': product.customer_reviews, 'product': product.name} for product in products]
-    return Response(data)
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
 
 # API Endpoint for Video Cards Data
 @api_view(['GET'])
 def video_cards_data(request):
     """Returns video cards data from database"""
     videos = ProductVideo.objects.all()
-    data = [{'video': video.video.url if video.video else '', 'product': video.product.name} for video in videos]
-    return Response(data)
+    products = [video.product for video in videos]
+    serializer = ProductSerializer(products, many=True)
+    return Response(serializer.data)
