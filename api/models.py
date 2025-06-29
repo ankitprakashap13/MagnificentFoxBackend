@@ -48,6 +48,7 @@ class Product(models.Model):
     design_and_fit = models.TextField(null=True, blank=True)
     fabric_and_care = models.TextField(null=True, blank=True)
     customer_reviews = models.TextField(null=True, blank=True)
+    is_editorial_pick = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     tags = models.ManyToManyField('Tag', related_name='products', blank=True)
@@ -116,4 +117,12 @@ class Wishlist(models.Model):
 class WishlistItem(models.Model):
     wishlist = models.ForeignKey(Wishlist, on_delete=models.CASCADE, related_name='wishlist_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
+
+class EditorialPick(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        unique_together = ('product',)
 
