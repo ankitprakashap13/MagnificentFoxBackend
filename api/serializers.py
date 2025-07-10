@@ -37,8 +37,8 @@ class ProductSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     countries = CountrySerializer(many=True, read_only=True)
     offers = OfferSerializer(many=True, read_only=True)
-    images = ProductImageSerializer(many=True, read_only=True)
-    videos = ProductVideoSerializer(many=True, read_only=True)
+    images = ProductImageSerializer(source='product_images', many=True, read_only=True)
+    videos = ProductVideoSerializer(source='product_videos', many=True, read_only=True)
     
     class Meta:
         model = Product
