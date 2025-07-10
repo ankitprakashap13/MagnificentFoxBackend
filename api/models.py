@@ -100,7 +100,7 @@ class Offer(models.Model):
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_images')
-    image = models.ImageField(upload_to='product_images/', default='product_images/default.jpg', max_length=2048)
+    image = models.URLField(max_length=2048)
     alt_text = models.CharField(max_length=255, blank=True, help_text='Alternative text for accessibility')
     
     def __str__(self):
