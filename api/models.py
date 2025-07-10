@@ -149,3 +149,9 @@ class EditorialPick(models.Model):
     class Meta:
         unique_together = ('product',)
 
+@receiver(post_save, sender=ProductVideo)
+def add_has_video_tag(sender, instance, created, **kwargs):
+    if created and instance.video:
+        has_video_tag, _ = Tag.objects.get_or_create(name='HAS-VIDEO')
+        instance.product.tags.add(has_video_tag)
+

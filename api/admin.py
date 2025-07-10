@@ -2,21 +2,47 @@ from django.contrib import admin
 from .models import User, Product, Tag, Offer, ProductImage, ProductVideo, Order, OrderItem, Cart, CartItem, Wishlist, WishlistItem, OTP
 from .utils import upload_file_to_spaces
 from django.utils.html import format_html
+from django import forms
 from dotenv import load_dotenv
 import os
 
+class ProductImageForm(forms.ModelForm):
+    class Meta:
+        model = ProductImage
+        fields = '__all__'
+        help_texts = {
+            'alt_text': 'If left empty, will auto-fill with product name when saved.'
+        }
+
 class ProductImageAdmin(admin.ModelAdmin):
-    list_display = ("id", "image", "image_preview")
+    form = ProductImageForm
+    list_display = ("id", "image_preview", "alt_text_link", "product_link")
     readonly_fields = ("image_preview",)
+    search_fields = ['alt_text', 'product__name']
+
+    def alt_text_link(self, obj):
+        from django.urls import reverse
+        url = reverse('admin:api_productimage_change', args=[obj.pk])
+        alt_text = obj.alt_text if obj.alt_text else "No Alt Text"
+        return format_html('<a href="{}">{}</a>', url, alt_text)
+    alt_text_link.short_description = "Alt Text"
+
+    def product_link(self, obj):
+        from django.urls import reverse
+        url = reverse('admin:api_product_change', args=[obj.product.pk])
+        return format_html('<a href="{}">{}</a>', url, obj.product.name)
+    product_link.short_description = "Product"
 
     def image_preview(self, obj):
         if obj.image:
             url = obj.image
             return format_html('<img src="{}" style="max-height: 200px; max-width: 200px;" />', str(url))
         return "No Image"
-    image_preview.short_description = "Preview"
+    image_preview.short_description = "Image Preview"
 
     def save_model(self, request, obj, form, change):
+        if not obj.alt_text and obj.product:
+            obj.alt_text = obj.product.name
         load_dotenv()
         if 'image' in form.changed_data and obj.image:
             url = upload_file_to_spaces(obj.image.file, object_name=f"{obj.image.name}")
@@ -27,6 +53,7 @@ class ProductImageAdmin(admin.ModelAdmin):
 
 class ProductVideoAdmin(admin.ModelAdmin):
     list_display = ("id", "video",)
+    search_fields = ['title', 'product__name']
 
     def save_model(self, request, obj, form, change):
         if 'video' in form.changed_data and obj.video:
@@ -35,10 +62,19 @@ class ProductVideoAdmin(admin.ModelAdmin):
             obj.video = url
         super().save_model(request, obj, form, change)
 
+class ProductAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['tags', 'offers', 'images', 'videos']
+
+class TagAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
+class OfferAdmin(admin.ModelAdmin):
+    search_fields = ['name']
+
 admin.site.register(User)
-admin.site.register(Product)
-admin.site.register(Tag)
-admin.site.register(Offer)
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(Offer, OfferAdmin)
 admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(Cart)
