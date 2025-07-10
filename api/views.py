@@ -2,8 +2,8 @@ from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
-from .models import User, Product, Order, Tag, ProductImage, ProductVideo, WishlistItem, EditorialPick
-from .serializers import UserSerializer, ProductSerializer, OrderSerializer, ColumnStructureSerializer
+from .models import User, Product, Order, Tag, ProductImage, ProductVideo, WishlistItem, EditorialPick, Country
+from .serializers import UserSerializer, ProductSerializer, OrderSerializer, ColumnStructureSerializer, CountrySerializer
 
 # Generic Views for CRUD Operations
 class UserListCreate(generics.ListCreateAPIView):
@@ -17,15 +17,25 @@ class ProductListCreate(generics.ListCreateAPIView):
     def get_queryset(self):
         queryset = Product.objects.all()
         tags = self.request.query_params.get('tags')
+        country = self.request.query_params.get('country')
+        
         if tags:
             tag_names = [tag.strip() for tag in tags.split(',') if tag.strip()]
             queryset = queryset.filter(tags__name__in=tag_names).distinct()
+        
+        if country:
+            queryset = queryset.filter(countries__code__iexact=country).distinct()
+        
         return queryset
 
 
 class OrderListCreate(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+
+class CountryListCreate(generics.ListCreateAPIView):
+    queryset = Country.objects.filter(is_active=True)
+    serializer_class = CountrySerializer
 
 # API Endpoint for Reviews Data
 @api_view(['GET'])

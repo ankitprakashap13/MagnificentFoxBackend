@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Product, Tag, Offer, ProductImage, ProductVideo, Order, OrderItem, Cart, CartItem, Wishlist, WishlistItem, OTP
+from .models import User, Product, Tag, Offer, ProductImage, ProductVideo, Order, OrderItem, Cart, CartItem, Wishlist, WishlistItem, OTP, Country
 from .utils import upload_file_to_spaces
 from django.utils.html import format_html
 from django import forms
@@ -63,7 +63,7 @@ class ProductVideoAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 class ProductAdmin(admin.ModelAdmin):
-    autocomplete_fields = ['tags', 'offers', 'images', 'videos']
+    autocomplete_fields = ['tags', 'offers', 'images', 'videos', 'countries']
 
 class TagAdmin(admin.ModelAdmin):
     search_fields = ['name']
@@ -71,10 +71,20 @@ class TagAdmin(admin.ModelAdmin):
 class OfferAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
-admin.site.register(User)
-admin.site.register(Product, ProductAdmin)
+class CountryAdmin(admin.ModelAdmin):
+    list_display = ('name', 'code', 'is_active')
+    search_fields = ['name', 'code']
+    list_filter = ['is_active']
+
+class UserAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['country']
+    search_fields = ['name', 'email', 'mobile']
+
+admin.site.register(User, UserAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Offer, OfferAdmin)
+admin.site.register(Country, CountryAdmin)
+admin.site.register(Product, ProductAdmin)
 admin.site.register(Order)
 admin.site.register(OrderItem)
 admin.site.register(Cart)

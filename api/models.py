@@ -15,6 +15,7 @@ class User(AbstractUser):
     password = models.CharField(max_length=255)
     dob = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=10, null=True, blank=True)
+    country = models.ForeignKey('Country', on_delete=models.SET_NULL, null=True, blank=True)
     groups = models.ManyToManyField(
         Group,
         related_name='api_user_set',  # Add related_name to avoid clash
@@ -58,6 +59,7 @@ class Product(models.Model):
     offers = models.ManyToManyField('Offer', related_name='products', blank=True)
     images = models.ManyToManyField('ProductImage', related_name='products', blank=True)
     videos = models.ManyToManyField('ProductVideo', related_name='products', blank=True)
+    countries = models.ManyToManyField('Country', related_name='products', blank=True)
     
     def __str__(self):
         return self.name
@@ -71,6 +73,17 @@ class OTP(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    
+    def __str__(self):
+        return self.name
+
+class Country(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    code = models.CharField(max_length=3, unique=True, help_text='ISO country code (e.g., US, IN, UK)')
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+        verbose_name_plural = 'Countries'
     
     def __str__(self):
         return self.name
